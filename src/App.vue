@@ -67,6 +67,7 @@
                     id="icon_prefix"
                     v-model="newName"
                     type="text"
+                    @input="handleNewNameInput"
                     @keyup.enter="addColleague"
                   >
                   <label for="icon_prefix">Name</label>
@@ -79,6 +80,7 @@
                     placeholder="0"
                     type="number"
                     @keyup.enter="addColleague"
+                    :disabled="disableAgeInput"
                   >
                   <label
                     for="icon_age"
@@ -88,7 +90,7 @@
                 <div class="col s12 right-align">
                   <button
                     class="btn btn-primary"
-                    :disabled="newName.length === 0 || newAge.length === 0"
+                    :disabled="!newName || !newAge"
                     @click="addColleague"
                   >
                     Save Item
@@ -107,7 +109,10 @@
                 class="collection-item avatar valign-wrapper list-complete-item"
               >
                 <i class="material-icons circle">person</i>
-                <span class="title">{{ person.name }}, <i class="red-text accent-4">{{ person.age }}</i></span>
+                <div>
+                  <p class="title">{{ person.name }}, <i class="red-text accent-4">{{ person.age }}</i></p>
+                  <span v-if="person.isOriginal" style="font-size: 10px; text-transform: uppercase;margin: 0;">from original</span>
+                </div>
               </li>
             </transition-group>
           </div>
@@ -118,12 +123,14 @@
 </template>
 
 <script>
+let timeoutInstance;
+
 export default {
   data() {
     return {
       state: 'default',
-      newName: '',
-      newAge: '',
+      newName: null,
+      newAge: null,
       originalList: [
         { name: "Joseph", age: 26 },
         { name: "Daniel", age: 38 },
@@ -137,7 +144,8 @@ export default {
         { name: "Angel", age: 39 }
       ],
       newList: [],
-      exists: null
+      exists: null,
+      disableAgeInput: false,
     }
   },
   computed: {
@@ -151,45 +159,67 @@ export default {
 
   },
   methods: {
-    hidePerson: function(person) {
+    toCapitalizeString(string) {
+      const lowercased = string.toLowerCase();
+      return lowercased.charAt(0).toUpperCase() + lowercased.slice(1)
+    },
+    hidePerson(person) {
       //This will remove the item.
       //this.originalList.splice(index, 1);
 
       //While this will tell that the person is added in the new list 
       //and will be hidden from the original list.
-      this.originalList.splice(this.originalList.map(function(e) {
-        return e.name;
-      }).indexOf(person), 1, {
-        name: this.newName,
+      const personIndex = this.originalList.map((e) => e.name.toLowerCase()).indexOf(person.toLowerCase());
+
+      this.originalList.splice(personIndex, 1, {
+        name: this.toCapitalizeString(this.newName),
         age: this.newAge,
         isInNewList: true
       })
     },
-    checkIfExist: function(name) {
-      this.exists = this.originalList.some((person) => {
-        return person.name === name
+    checkIfExist(name) {
+      return this.originalList.some((person) => {
+        return person.name.toLowerCase() === name.toLowerCase()
       })
     },
-    addColleague: function() {
+    addColleague() {
       if (!this.newName || !this.newAge) {
         return;
       }
-      
-      this.checkIfExist(this.newName)
-      if (this.exists)
+
+      if (this.checkIfExist(this.newName))
         this.hidePerson(this.newName);
 
       this.newList.push({
-        name: this.newName,
+        name: this.toCapitalizeString(this.newName),
         age: this.newAge,
+        isOriginal: this.checkIfExist(this.newName),
       });
-      this.newName = '';
-      this.newAge = '';
+      this.newName = null;
+      this.newAge = null;
     },
-    changeState: function(newState) {
+    changeState(newState) {
       //Change states: 'Default', 'Animate', and 'Add'
       this.state = newState;
       this.newItem = '';
+    },
+    handleNewNameInput(e) {
+      if(timeoutInstance) {
+        clearTimeout(timeoutInstance);
+      }
+
+      timeoutInstance = setTimeout(() => {
+        const inputValue = e.target.value;
+
+        if (inputValue && this.checkIfExist(inputValue)) {
+          this.disableAgeInput = true;
+          const person = this.originalList.find(person => person.name.toLowerCase() === inputValue.toLowerCase());
+          this.newAge = person.age;
+        } else {
+          this.disableAgeInput = false;
+          this.newAge = null;
+        }
+      }, 500);
     }
   }
 }
