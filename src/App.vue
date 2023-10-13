@@ -160,8 +160,21 @@ export default {
   },
   methods: {
     toCapitalizeString(string) {
-      const lowercased = string.toLowerCase();
-      return lowercased.charAt(0).toUpperCase() + lowercased.slice(1)
+      // Split the input string into an array of words
+        const words = string.split(' ');
+
+      // Capitalize the first letter of each word
+      const capitalizedWords = words.map(word => {
+        if (word.length === 0) {
+          return word; // Handle empty strings
+        }
+        return word[0].toUpperCase() + word.slice(1).toLowerCase();
+      });
+
+      // Join the words back into a single string
+      const capitalizedString = capitalizedWords.join(' ');
+
+      return capitalizedString;
     },
     hidePerson(person) {
       //This will remove the item.
