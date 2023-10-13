@@ -144,7 +144,6 @@ export default {
         { name: "Angel", age: 39 }
       ],
       newList: [],
-      exists: null,
       disableAgeInput: false,
     }
   },
