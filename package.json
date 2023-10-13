@@ -9,7 +9,6 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
   },
   "dependencies": {
-    "materialize-css": "^1.0.0-rc.2",
     "vue": "^3.3.4"
   },
   "devDependencies": {
