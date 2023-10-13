@@ -171,6 +171,10 @@ export default {
       })
     },
     addColleague: function() {
+      if (!this.newName || !this.newAge) {
+        return;
+      }
+      
       this.checkIfExist(this.newName)
       if (this.exists)
         this.hidePerson(this.newName);
