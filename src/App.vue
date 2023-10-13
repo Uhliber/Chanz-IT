@@ -51,7 +51,7 @@
               v-if="newList.length === 0 && state === 'default'"
               class="red-text"
             >
-              You don't have a list of new colleagues! Click the '+' button to start adding.
+              You don't have a list of new colleagues! Click the <span style="font-weight: bold;">+</span> button to start adding.
             </p>
             <transition
               name="slide-fade"
